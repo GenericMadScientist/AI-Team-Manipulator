@@ -238,7 +238,7 @@ function displayPotentialAiTeams () {
   })
 
   let possibleTeams = bestEightTeams(combosWithFitness)
-  if (trainer.ai.mustNotUseBothBestPokes && fitnessValues.flat().filter(f => isNaN(p)).length === 0) {
+  if (trainer.ai.mustNotUseBothBestPokes && fitnessValues.flat().filter(isNaN).length === 0) {
     const [bestPoke, secondBestPoke] = bestTwoPokes()
     const noFirstPokeTeams = bestEightTeams(combosWithFitness.filter(([fitness, team]) => !team.includes(bestPoke)))
     const noSecondBestPokeTeams = bestEightTeams(combosWithFitness.filter(([fitness, team]) => !team.includes(secondBestPoke)))
@@ -298,7 +298,7 @@ function decideLead (teamCombo, trainer) {
   if (trainer.ai.usesRandomLead) {
     return [teamCombo[0], teamCombo[1], teamCombo[2]]
   }
-  if (fitnessValues.flat().filter(f => isNaN(f)).length) {
+  if (fitnessValues.flat().filter(isNaN).length) {
     return [NaN]
   }
   const firstChoiceLead = chooseLead(teamCombo, trainer, new BinaryPrng(0))
