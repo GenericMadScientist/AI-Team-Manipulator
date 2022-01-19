@@ -20,7 +20,7 @@ button, input, select {
     font-family: inherit;
 }
 
-#nonRentalsInput {
+#non-rentals-input {
     display: grid;
     grid-template-columns: 100px 200px;
     align-items: center;
@@ -31,7 +31,7 @@ ol {
     list-style: none;
 }
 
-ol#rentalSelections {
+ol#rental-selections {
     display: flex;
     gap: 5px;
 }
@@ -53,11 +53,11 @@ li.pokemon {
     padding: 5px;
 }
 
-div.pokemonData {
+div.pokemon-data {
     display: flex;
 }
 
-.pokemonData > * {
+.pokemon-data > * {
     flex: 1;
 }
 
@@ -97,8 +97,8 @@ td.stat {
     text-align: center;
 }
 
-.shiny-star {
-    color: red;
+.total-fitness {
+    grid-column: 1 / 4;
 }
 
 .male {
@@ -109,26 +109,34 @@ td.stat {
     color: deeppink;
 }
 
-table#potentialTeams {
+.positive-fitness {
+    color: green;
+}
+
+.negative-fitness {
+    color: red;
+}
+
+table#potential-teams {
     table-layout: fixed;
     border: 1px solid gray;
     border-collapse: collapse;
 }
 
-table#potentialTeams > caption {
+table#potential-teams > caption {
     padding: 3px 10px;
     font-weight: bold;
 }
 
-table#potentialTeams th, table#potentialTeams td {
+table#potential-teams th, table#potential-teams td {
     padding: 4px 10px;
     border: 1px solid gray;
 }
 
-tbody#potentialTeamsBody tr:nth-child(odd) {
+tbody#potential-teams-body tr:nth-child(odd) {
     background-color: #282828;
 }
 
-tbody#potentialTeamsBody tr:nth-child(even) {
+tbody#potential-teams-body tr:nth-child(even) {
     background-color: #141414;
 }

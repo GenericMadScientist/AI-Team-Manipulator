@@ -10,7 +10,7 @@ function BinaryPrng (seed) {
 
 const cupDropdown = document.querySelector('#cup')
 const trainerDropdown = document.querySelector('#trainer')
-const roundTwoCheckbox = document.querySelector('#useRoundTwoRentals')
+const roundTwoCheckbox = document.querySelector('#use-round-two-rentals')
 let rentalPool = {}
 const fitnessValues = [
   [NaN, NaN, NaN, NaN, NaN, NaN],
@@ -31,7 +31,7 @@ roundTwoCheckbox.addEventListener('change', changeRentalPool)
 roundTwoCheckbox.addEventListener('change', assignFitnessValues)
 roundTwoCheckbox.addEventListener('change', displayPotentialAiTeams)
 
-for (const select of document.querySelector('#rentalSelections').children) {
+for (const select of document.querySelector('#rental-selections').children) {
   select.addEventListener('change', assignFitnessValues)
   select.addEventListener('change', displayPotentialAiTeams)
 }
@@ -56,47 +56,23 @@ function fillTrainers () {
 
 function displayAiData () {
   const opponent = cupData[cupDropdown.value][trainerDropdown.value]
-  const quirksList = document.querySelector('#aiOpponentQuirks')
+  const quirksDescriptions = {
+    randomFitness: 'Uses random fitness values',
+    mustUseFirstPoke: `Always ${opponent.ai.doesNotReorderTeam ? 'leads' : 'brings'} ${pokemonData[opponent.team[0].species].name}`,
+    mustUseLastPoke: `Always brings ${pokemonData[opponent.team[5].species].name}`,
+    penaliseBestFitnessPokeLead: 'Prefers to not lead with best pokémon',
+    usesRandomLead: 'Uses random lead',
+    mustUseFromAllColumns: 'Always selects one from each column',
+    mustNotUseBothBestPokes: 'Does not use both of two best pokémon'
+  }
+  const quirksList = document.querySelector('#ai-opponent-quirks')
   quirksList.innerHTML = ''
-  if (opponent.ai.randomFitness) {
-    const data = document.createElement('li')
-    data.innerText = 'Uses random fitness values'
-    quirksList.appendChild(data)
-  }
-  if (opponent.ai.mustUseFirstPoke) {
-    const data = document.createElement('li')
-    let verb = 'brings'
-    // All opponents that do not reorder their team also always bring their first.
-    if (opponent.ai.doesNotReorderTeam) {
-      verb = 'leads'
+  for (const [key, value] of Object.entries(quirksDescriptions)) {
+    if (opponent.ai[key]) {
+      const data = document.createElement('li')
+      data.innerText = value
+      quirksList.appendChild(data)
     }
-    data.innerText = `Always ${verb} ${pokemonData[opponent.team[0].species].name}`
-    quirksList.appendChild(data)
-  }
-  if (opponent.ai.mustUseLastPoke) {
-    const data = document.createElement('li')
-    data.innerText = `Always brings ${pokemonData[opponent.team[5].species].name}`
-    quirksList.appendChild(data)
-  }
-  if (opponent.ai.penaliseBestFitnessPokeLead) {
-    const data = document.createElement('li')
-    data.innerText = 'Prefers to not lead with best pokémon'
-    quirksList.appendChild(data)
-  }
-  if (opponent.ai.usesRandomLead) {
-    const data = document.createElement('li')
-    data.innerText = 'Uses random lead'
-    quirksList.appendChild(data)
-  }
-  if (opponent.ai.mustUseFromAllColumns) {
-    const data = document.createElement('li')
-    data.innerText = 'Always selects one from each column'
-    quirksList.appendChild(data)
-  }
-  if (opponent.ai.mustNotUseBothBestPokes) {
-    const data = document.createElement('li')
-    data.innerText = 'Does not use both highest fitness pokémon'
-    quirksList.appendChild(data)
   }
 }
 
@@ -112,7 +88,7 @@ function fillInPokemon (element, pokemon) {
   element.querySelector('.name').innerHTML = displayName(pokemon)
   const x = 64 * (252 - pokemon.species)
   element.querySelector('.sprite').style.backgroundPositionX = `${x}px`
-  element.querySelector('.heldItem').textContent = itemNames[pokemon.item]
+  element.querySelector('.held-item').textContent = itemNames[pokemon.item]
   fillInStats(element.querySelector('.stats'), pokemon.stats)
   fillInMoves(element.querySelector('.moves'), pokemon.moves)
 }
@@ -154,7 +130,7 @@ function changeRentalPool () {
   }
   if (rentalPool !== newRentals) {
     rentalPool = newRentals
-    const selections = document.querySelector('#rentalSelections').querySelectorAll('select')
+    const selections = document.querySelector('#rental-selections').querySelectorAll('select')
     for (const select of selections) {
       select.innerHTML = ''
       const option = document.createElement('option')
@@ -181,7 +157,7 @@ function changeRentalPool () {
 }
 
 function assignFitnessValues () {
-  const rentalSelections = document.querySelector('#rentalSelections').querySelectorAll('select')
+  const rentalSelections = document.querySelector('#rental-selections').querySelectorAll('select')
   const aiTrainer = cupData[cupDropdown.value][trainerDropdown.value]
   for (let i = 0; i < 6; i++) {
     for (let j = 0; j < 6; j++) {
@@ -197,13 +173,21 @@ function assignFitnessValues () {
   for (let i = 0; i < 6; i++) {
     const listItems = fitnessSets[i].querySelectorAll('li')
     for (let j = 0; j < 6; j++) {
-      let text = '???'
-      if (!isNaN(fitnessValues[i][j])) {
-        text = fitnessValues[i][j].toLocaleString()
-      }
-      listItems[j].innerText = text
+      listItems[j].innerHTML = fitnessValueToText(fitnessValues[i][j])
     }
+    const totalFitness = fitnessValues[i].reduce((a, b) => a + b, 0)
+    listItems[6].innerHTML = `Total fitness: ${fitnessValueToText(totalFitness)}`
   }
+}
+
+function fitnessValueToText (fitness) {
+  if (isNaN(fitness)) {
+    return '???'
+  }
+  if (fitness >= 0) {
+    return `<span class="positive-fitness">+${fitness.toLocaleString()}</span>`
+  }
+  return `<span class="negative-fitness">${fitness.toLocaleString()}</span>`
 }
 
 function displayPotentialAiTeams () {
@@ -261,7 +245,7 @@ function displayPotentialAiTeams () {
     possibleTeams = noFirstPokeTeams.concat(noSecondBestPokeTeams.filter(team => !noFirstPokeTeams.includes(team)))
   }
 
-  const aiTeams = document.querySelector('#potentialTeamsBody')
+  const aiTeams = document.querySelector('#potential-teams-body')
   aiTeams.innerHTML = ''
   for (const team of possibleTeams.sort()) {
     const leads = decideLead(team, trainer)
