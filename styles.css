@@ -1,0 +1,134 @@
+header > * {
+    display: flex;
+    justify-content: center;
+}
+
+a {
+    margin-left: 0.333em;
+    margin-right: 0.333em;
+    color: deepskyblue;
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 16px;
+    background-color: #181818;
+    color: silver;
+}
+
+button, input, select {
+    font-family: inherit;
+}
+
+#nonRentalsInput {
+    display: grid;
+    grid-template-columns: 100px 200px;
+    align-items: center;
+    gap: 5px;
+}
+
+ol {
+    list-style: none;
+}
+
+ol#rentalSelections {
+    display: flex;
+    gap: 5px;
+}
+
+ol#team {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(calc(max(500px, 33%)), 1fr));
+    grid-auto-flow: row dense;
+    padding: 0px;
+    border: 1px solid gray;
+}
+
+ol#team > * {
+    border: 1px solid gray;
+}
+
+li.pokemon {
+    background-color: #282828;
+    padding: 5px;
+}
+
+div.pokemonData {
+    display: flex;
+}
+
+.pokemonData > * {
+    flex: 1;
+}
+
+.sprite {
+    background: url(sprites.png);
+    width: 64px;
+    height: 64px;
+    background-position-x: 0px;
+    background-position-y: 0px;
+}
+
+td.stat {
+    text-align: right;
+}
+
+.moves {
+    display: flex;
+    flex-direction: column;
+}
+
+.moves > li {
+    flex: 1;
+    display: flex;
+    align-items: center;
+}
+
+.fitnesses {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    align-items: center;
+    gap: 5px;
+    flex-direction: column;
+    padding-left: 0px;
+}
+
+.fitnesses > li {
+    text-align: center;
+}
+
+.shiny-star {
+    color: red;
+}
+
+.male {
+    color: deepskyblue;
+}
+
+.female {
+    color: deeppink;
+}
+
+table#potentialTeams {
+    table-layout: fixed;
+    border: 1px solid gray;
+    border-collapse: collapse;
+}
+
+table#potentialTeams > caption {
+    padding: 3px 10px;
+    font-weight: bold;
+}
+
+table#potentialTeams th, table#potentialTeams td {
+    padding: 4px 10px;
+    border: 1px solid gray;
+}
+
+tbody#potentialTeamsBody tr:nth-child(odd) {
+    background-color: #282828;
+}
+
+tbody#potentialTeamsBody tr:nth-child(even) {
+    background-color: #141414;
+}

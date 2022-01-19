@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Pokémon Stadium 2 AI Team Manipulator</title>
+    <meta name="description" content="A Pokémon Stadium 2 program to help manipulate the AI's team selection.">
+    <link rel="stylesheet" href="styles.css">
+    <script src="manip-data.js" defer></script>
+    <script src="manip.js" defer></script>
+</head>
+
+<body>
+    <header>
+        <h1>Pokémon Stadium 2 AI Team Manipulator</h1>
+        <p>A little something to understand how Stadium 2's AI selects its teams. Details in an upcoming blog post! </p>
+    </header>
+
+    <div id="input">
+        <div id="nonRentalsInput">
+            <label for="cup">Cup</label>
+            <select id="cup" name="cup">
+                <option value="poke-poke-r1">Poké Cup Poké Ball R1</option>
+                <option value="poke-great-r1">Poké Cup Great Ball R1</option>
+                <option value="poke-ultra-r1">Poké Cup Ultra Ball R1</option>
+                <option value="poke-master-r1">Poké Cup Master Ball R1</option>
+                <option value="little-r1">Little Cup R1</option>
+                <option value="prime-r1">Prime Cup R1</option>
+                <option value="violet-r1">Violet Gym R1</option>
+                <option value="azalea-r1">Azalea Gym R1</option>
+                <option value="goldenrod-r1">Goldenrod Gym R1</option>
+                <option value="ecruteak-r1">Ecruteak Gym R1</option>
+                <option value="cianwood-r1">Cianwood Gym R1</option>
+                <option value="olivine-r1">Olivine Gym R1</option>
+                <option value="team-rocket-r1">Team Rocket R1</option>
+                <option value="mahogany-r1">Mahogany Gym R1</option>
+                <option value="blackthorn-r1">Blackthorn Gym R1</option>
+                <option value="elite-four-r1">Elite Four R1</option>
+                <option value="kanto-r1">Kanto R1</option>
+                <option value="poke-poke-r2">Poké Cup Poké Ball R2</option>
+                <option value="poke-great-r2">Poké Cup Great Ball R2</option>
+                <option value="poke-ultra-r2">Poké Cup Ultra Ball R2</option>
+                <option value="poke-master-r2">Poké Cup Master Ball R2</option>
+                <option value="little-r2">Little Cup R2</option>
+                <option value="prime-r2">Prime Cup R2</option>
+                <option value="violet-r2">Violet Gym R2</option>
+                <option value="azalea-r2">Azalea Gym R2</option>
+                <option value="goldenrod-r2">Goldenrod Gym R2</option>
+                <option value="ecruteak-r2">Ecruteak Gym R2</option>
+                <option value="cianwood-r2">Cianwood Gym R2</option>
+                <option value="olivine-r2">Olivine Gym R2</option>
+                <option value="team-rocket-r2">Team Rocket R2</option>
+                <option value="mahogany-r2">Mahogany Gym R2</option>
+                <option value="blackthorn-r2">Blackthorn Gym R2</option>
+                <option value="elite-four-r2">Elite Four R2</option>
+                <option value="kanto-r2">Kanto R2</option>
+            </select>
+            <label for="trainer">Trainer</label>
+            <select id="trainer" name="trainer">
+            </select>
+            <label for="useRoundTwoRentals">Use Round 2 rentals?</label>
+            <input type="checkbox" name="useRoundTwoRentals" id="useRoundTwoRentals">
+        </div>
+        <ol id="rentalSelections">
+            <li>
+                <select></select>
+            </li>
+            <li>
+                <select></select>
+            </li>
+            <li>
+                <select></select>
+            </li>
+            <li>
+                <select></select>
+            </li>
+            <li>
+                <select></select>
+            </li>
+            <li>
+                <select></select>
+            </li>
+        </ol>
+    </div>
+
+    <ol id="team">
+        <li class="pokemon">
+            <div class="pokemonData">
+                <div class="species">
+                    <p class="name"></p>
+                    <img class="sprite" src="sprite-trans.png">
+                    <p class="heldItem"></p>
+                </div>
+                <table class="stats">
+                    <tr class="hp">
+                        <td>HP</td>
+                        <td class="stat"></td>
+                    </tr>
+                    <tr class="attack">
+                        <td>Attack</td>
+                        <td class="stat"></td>
+                    </tr>
+                    <tr class="defense">
+                        <td>Defense</td>
+                        <td class="stat"></td>
+                    </tr>
+                    <tr class="spclAtk">
+                        <td>Spcl. Atk</td>
+                        <td class="stat"></td>
+                    </tr>
+                    <tr class="spclDef">
+                        <td>Spcl. Def</td>
+                        <td class="stat"></td>
+                    </tr>
+                    <tr class="speed">
+                        <td>Speed</td>
+                        <td class="stat"></td>
+                    </tr>
+                </table>
+                <ol class="moves">
+                    <li></li>
+                    <li></li>
+                    <li></li>
+                    <li></li>
+                </ol>
+            </div>
+            <ol class="fitnesses">
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+            </ol>
+        </li>
+        <li class="pokemon">
+            <div class="pokemonData">
+                <div class="species">
+                    <p class="name"></p>
+                    <img class="sprite" src="sprite-trans.png">
+                    <p class="heldItem"></p>
+                </div>
+                <table class="stats">
+                    <tr class="hp">
+                        <td>HP</td>
+                        <td class="stat"></td>
+                    </tr>
+                    <tr class="attack">
+                        <td>Attack</td>
+                        <td class="stat"></td>
+                    </tr>
+                    <tr class="defense">
+                        <td>Defense</td>
+                        <td class="stat"></td>
+                    </tr>
+                    <tr class="spclAtk">
+                        <td>Spcl. Atk</td>
+                        <td class="stat"></td>
+                    </tr>
+                    <tr class="spclDef">
+                        <td>Spcl. Def</td>
+                        <td class="stat"></td>
+                    </tr>
+                    <tr class="speed">
+                        <td>Speed</td>
+                        <td class="stat"></td>
+                    </tr>
+                </table>
+                <ol class="moves">
+                    <li></li>
+                    <li></li>
+                    <li></li>
+                    <li></li>
+                </ol>
+            </div>
+            <ol class="fitnesses">
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+            </ol>
+        </li>
+        <li class="pokemon">
+            <div class="pokemonData">
+                <div class="species">
+                    <p class="name"></p>
+                    <img class="sprite" src="sprite-trans.png">
+                    <p class="heldItem"></p>
+                </div>
+                <table class="stats">
+                    <tr class="hp">
+                        <td>HP</td>
+                        <td class="stat"></td>
+                    </tr>
+                    <tr class="attack">
+                        <td>Attack</td>
+                        <td class="stat"></td>
+                    </tr>
+                    <tr class="defense">
+                        <td>Defense</td>
+                        <td class="stat"></td>
+                    </tr>
+                    <tr class="spclAtk">
+                        <td>Spcl. Atk</td>
+                        <td class="stat"></td>
+                    </tr>
+                    <tr class="spclDef">
+                        <td>Spcl. Def</td>
+                        <td class="stat"></td>
+                    </tr>
+                    <tr class="speed">
+                        <td>Speed</td>
+                        <td class="stat"></td>
+                    </tr>
+                </table>
+                <ol class="moves">
+                    <li></li>
+                    <li></li>
+                    <li></li>
+                    <li></li>
+                </ol>
+            </div>
+            <ol class="fitnesses">
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+            </ol>
+        </li>
+        <li class="pokemon">
+            <div class="pokemonData">
+                <div class="species">
+                    <p class="name"></p>
+                    <img class="sprite" src="sprite-trans.png">
+                    <p class="heldItem"></p>
+                </div>
+                <table class="stats">
+                    <tr class="hp">
+                        <td>HP</td>
+                        <td class="stat"></td>
+                    </tr>
+                    <tr class="attack">
+                        <td>Attack</td>
+                        <td class="stat"></td>
+                    </tr>
+                    <tr class="defense">
+                        <td>Defense</td>
+                        <td class="stat"></td>
+                    </tr>
+                    <tr class="spclAtk">
+                        <td>Spcl. Atk</td>
+                        <td class="stat"></td>
+                    </tr>
+                    <tr class="spclDef">
+                        <td>Spcl. Def</td>
+                        <td class="stat"></td>
+                    </tr>
+                    <tr class="speed">
+                        <td>Speed</td>
+                        <td class="stat"></td>
+                    </tr>
+                </table>
+                <ol class="moves">
+                    <li></li>
+                    <li></li>
+                    <li></li>
+                    <li></li>
+                </ol>
+            </div>
+            <ol class="fitnesses">
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+            </ol>
+        </li>
+        <li class="pokemon">
+            <div class="pokemonData">
+                <div class="species">
+                    <p class="name"></p>
+                    <img class="sprite" src="sprite-trans.png">
+                    <p class="heldItem"></p>
+                </div>
+                <table class="stats">
+                    <tr class="hp">
+                        <td>HP</td>
+                        <td class="stat"></td>
+                    </tr>
+                    <tr class="attack">
+                        <td>Attack</td>
+                        <td class="stat"></td>
+                    </tr>
+                    <tr class="defense">
+                        <td>Defense</td>
+                        <td class="stat"></td>
+                    </tr>
+                    <tr class="spclAtk">
+                        <td>Spcl. Atk</td>
+                        <td class="stat"></td>
+                    </tr>
+                    <tr class="spclDef">
+                        <td>Spcl. Def</td>
+                        <td class="stat"></td>
+                    </tr>
+                    <tr class="speed">
+                        <td>Speed</td>
+                        <td class="stat"></td>
+                    </tr>
+                </table>
+                <ol class="moves">
+                    <li></li>
+                    <li></li>
+                    <li></li>
+                    <li></li>
+                </ol>
+            </div>
+            <ol class="fitnesses">
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+            </ol>
+        </li>
+        <li class="pokemon">
+            <div class="pokemonData">
+                <div class="species">
+                    <p class="name"></p>
+                    <img class="sprite" src="sprite-trans.png">
+                    <p class="heldItem"></p>
+                </div>
+                <table class="stats">
+                    <tr class="hp">
+                        <td>HP</td>
+                        <td class="stat"></td>
+                    </tr>
+                    <tr class="attack">
+                        <td>Attack</td>
+                        <td class="stat"></td>
+                    </tr>
+                    <tr class="defense">
+                        <td>Defense</td>
+                        <td class="stat"></td>
+                    </tr>
+                    <tr class="spclAtk">
+                        <td>Spcl. Atk</td>
+                        <td class="stat"></td>
+                    </tr>
+                    <tr class="spclDef">
+                        <td>Spcl. Def</td>
+                        <td class="stat"></td>
+                    </tr>
+                    <tr class="speed">
+                        <td>Speed</td>
+                        <td class="stat"></td>
+                    </tr>
+                </table>
+                <ol class="moves">
+                    <li></li>
+                    <li></li>
+                    <li></li>
+                    <li></li>
+                </ol>
+            </div>
+            <ol class="fitnesses">
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+            </ol>
+        </li>
+    </ol>
+
+    <ul id="aiOpponentQuirks"></ul>
+
+    <table id="potentialTeams">
+        <caption>Potential Teams</caption>
+        <thead>
+            <tr>
+                <th scope="col">Team</th>
+                <th scope="col">Lead</th>
+            </tr>
+        </thead>
+        <tbody id="potentialTeamsBody"></tbody>
+    </table>
+</body>
+
+</html>
