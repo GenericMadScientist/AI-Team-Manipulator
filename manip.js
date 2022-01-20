@@ -298,7 +298,7 @@ function bestTwoPokes () {
       secondBestPoke = bestPoke
       bestPoke = j
     } else if (fitnessTotals[j] > fitnessTotals[secondBestPoke]) {
-      secondbestPoke = j
+      secondBestPoke = j
     }
   }
   return [bestPoke, secondBestPoke]
