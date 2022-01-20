@@ -22,9 +22,9 @@ const fitnessValues = [
 ]
 
 cupDropdown.addEventListener('change', fillTrainers)
-cupDropdown.addEventListener('change', changeRentalPool)
 trainerDropdown.addEventListener('change', displayAiData)
 trainerDropdown.addEventListener('change', displayTeam)
+trainerDropdown.addEventListener('change', changeRentalPool)
 trainerDropdown.addEventListener('change', assignFitnessValues)
 trainerDropdown.addEventListener('change', displayPotentialAiTeams)
 roundTwoCheckbox.addEventListener('change', changeRentalPool)
@@ -36,7 +36,6 @@ for (const select of document.querySelector('#rental-selections').children) {
   select.addEventListener('change', displayPotentialAiTeams)
 }
 
-changeRentalPool()
 fillTrainers()
 
 function fillTrainers () {
@@ -50,6 +49,7 @@ function fillTrainers () {
   }
   displayAiData()
   displayTeam()
+  changeRentalPool()
   assignFitnessValues()
   displayPotentialAiTeams()
 }
@@ -63,11 +63,17 @@ function displayAiData () {
     penaliseBestFitnessPokeLead: 'Prefers to not lead with best pokémon',
     usesRandomLead: 'Uses random lead',
     mustUseFromAllColumns: 'Always selects one from each column',
-    mustNotUseBothBestPokes: 'Does not use both of two best pokémon'
+    mustNotUseBothBestPokes: 'Does not use both of two best pokémon',
+    ignoresTypeMatchups: 'Ignores type matchups',
+    knowsPlayerMoves: "Knows the player's moves"
   }
+  const keysIncompatibleWithNoReorder = ['penaliseBestFitnessPokeLead', 'usesRandomLead']
   const quirksList = document.querySelector('#ai-opponent-quirks')
   quirksList.innerHTML = ''
   for (const [key, value] of Object.entries(quirksDescriptions)) {
+    if (keysIncompatibleWithNoReorder.includes(key) && opponent.ai.doesNotReorderTeam) {
+      continue
+    }
     if (opponent.ai[key]) {
       const data = document.createElement('li')
       data.innerText = value
@@ -117,6 +123,7 @@ function fillInMoves (element, moves) {
 }
 
 function changeRentalPool () {
+  const earlDivisions = ['earl-trainer', 'earl-gym-leader', 'earl-elite-four']
   const cup = cupDropdown.value
   let newRentals = rentals.poke
   if (cup === 'little-r1' || cup === 'little-r2') {
@@ -127,30 +134,44 @@ function changeRentalPool () {
     } else {
       newRentals = rentals.primeR1
     }
+  } else if (earlDivisions.includes(cup)) {
+    newRentals = earlRentals[cup][trainerDropdown.value]
   }
   if (rentalPool !== newRentals) {
     rentalPool = newRentals
     const selections = document.querySelector('#rental-selections').querySelectorAll('select')
     for (const select of selections) {
       select.innerHTML = ''
-      const option = document.createElement('option')
-      option.value = -1
-      option.innerText = '-'
-      select.appendChild(option)
     }
-    for (let i = 0; i < rentalPool.length; i++) {
-      const poke = rentalPool[i]
-      const option = document.createElement('option')
-      option.value = i
-      if (poke.species === 29) {
-        option.innerText = 'Nidoran♀'
-      } else if (poke.species === 32) {
-        option.innerText = 'Nidoran♂'
-      } else {
-        option.innerText = pokemonData[poke.species].name
+
+    if (earlDivisions.includes(cup)) {
+      for (let i = 0; i < selections.length; i++) {
+        const option = document.createElement('option')
+        option.value = i
+        option.innerText = pokemonData[rentalPool[i].species].name
+        selections[i].appendChild(option)
       }
+    } else {
       for (const select of selections) {
-        select.appendChild(option.cloneNode(true))
+        const option = document.createElement('option')
+        option.value = -1
+        option.innerText = '-'
+        select.appendChild(option)
+      }
+      for (let i = 0; i < rentalPool.length; i++) {
+        const poke = rentalPool[i]
+        const option = document.createElement('option')
+        option.value = i
+        if (poke.species === 29) {
+          option.innerText = 'Nidoran♀'
+        } else if (poke.species === 32) {
+          option.innerText = 'Nidoran♂'
+        } else {
+          option.innerText = pokemonData[poke.species].name
+        }
+        for (const select of selections) {
+          select.appendChild(option.cloneNode(true))
+        }
       }
     }
   }
@@ -402,9 +423,13 @@ function getTeamFitness (teamCombo) {
 
 function computeMatchupFitness (aiPoke, playerPoke, ai) {
   const ignoredMoves = [12, 13, 32, 63, 71, 72, 90, 117, 120, 130, 138, 141, 153, 202, 248, 251]
-  const damageByPlayer = playerPoke.learnableMoves
+  let candidatePlayerMoves = playerPoke.learnableMoves
+  if (ai.knowsPlayerMoves) {
+    candidatePlayerMoves = playerPoke.moves
+  }
+  const damageByPlayer = candidatePlayerMoves
     .filter(m => !ignoredMoves.includes(m))
-    .map(m => moveDamage(playerPoke, aiPoke, m))
+    .map(m => moveDamage(playerPoke, aiPoke, ai, m))
     .reduce((a, b) => Math.max(a, b), 0)
   const damageRatioByPlayer = Math.min(Math.floor((damageByPlayer * 255) / aiPoke.stats.hp), 255)
   let fitness = -232 * damageRatioByPlayer * ai.weightToDamageByPlayer
@@ -412,7 +437,7 @@ function computeMatchupFitness (aiPoke, playerPoke, ai) {
     if (move === 0) {
       continue
     }
-    const damage = moveDamage(aiPoke, playerPoke, move)
+    const damage = moveDamage(aiPoke, playerPoke, ai, move)
     const damageProportion = Math.min(Math.floor((damage * 255) / playerPoke.stats.hp), 255)
     fitness += Math.floor((128 * moveData[move].accuracy * damageProportion * ai.weightToDamageByAi) / 255)
     const secondaryEffectBoost = getSecondaryBoost(aiPoke, playerPoke, move, ai)
@@ -421,7 +446,7 @@ function computeMatchupFitness (aiPoke, playerPoke, ai) {
   return fitness
 }
 
-function moveDamage (attacker, defender, move) {
+function moveDamage (attacker, defender, ai, move) {
   if (moveData[move].power === 0) {
     return 0
   }
@@ -485,7 +510,7 @@ function moveDamage (attacker, defender, move) {
   }
 
   const unaffectedByTypes = [12, 32, 49, 69, 82, 90, 101, 149, 162, 248]
-  if (!unaffectedByTypes.includes(move)) {
+  if (!unaffectedByTypes.includes(move) && !ai.ignoresTypeMatchups) {
     const moveType = moveData[move].type
     if (pokemonData[attacker.species].types.includes(moveType)) {
       damage += (damage >> 1)
