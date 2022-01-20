@@ -439,6 +439,7 @@ function computeMatchupFitness (aiPoke, playerPoke, ai) {
   let fitness = 0
   for (const move of aiPoke.moves) {
     if (move === 0) {
+      fitness -= 58 * damageRatioByPlayer * ai.weightToDamageByPlayer
       continue
     }
     const damage = moveDamage(aiPoke, playerPoke, ai, move)
