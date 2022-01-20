@@ -64,6 +64,7 @@ function displayAiData () {
     usesRandomLead: 'Uses random lead',
     mustUseFromAllColumns: 'Always selects one from each column',
     mustNotUseBothBestPokes: 'Does not use both of two best pokémon',
+    doesNotPenaliseCommonResistances: 'Does not penalise teams with overlapping physical resistances',
     ignoresTypeMatchups: 'Ignores type matchups',
     knowsPlayerMoves: "Knows the player's moves"
   }
@@ -242,7 +243,7 @@ function displayPotentialAiTeams () {
     teamCombos = teamCombos.filter(([i, j, k]) => ((i + j + k) % 3 === 0))
   }
 
-  const combosWithFitness = teamCombos.map(team => [getTeamFitness(team), team]).sort(function (a, b) {
+  const combosWithFitness = teamCombos.map(team => [getTeamFitness(team, trainer), team]).sort(function (a, b) {
     if (a[0] < b[0]) {
       return 1
     }
@@ -387,9 +388,12 @@ function chooseLead (teamCombo, trainer, prng) {
   return teamCombo[bestLeadFitnessPoke]
 }
 
-function getTeamFitness (teamCombo) {
+function getTeamFitness (teamCombo, trainer) {
   let teamFitness = teamCombo.flatMap(index => fitnessValues[index]).reduce((a, b) => a + b, 0)
-  const aiPokes = cupData[cupDropdown.value][trainerDropdown.value].team
+  if (trainer.ai.doesNotPenaliseCommonResistances) {
+    return teamFitness
+  }
+  const aiPokes = trainer.team
   for (let i = 0; i < 10; i++) {
     let resistCount = 0
     for (const member of teamCombo) {
@@ -432,7 +436,7 @@ function computeMatchupFitness (aiPoke, playerPoke, ai) {
     .map(m => moveDamage(playerPoke, aiPoke, ai, m))
     .reduce((a, b) => Math.max(a, b), 0)
   const damageRatioByPlayer = Math.min(Math.floor((damageByPlayer * 255) / aiPoke.stats.hp), 255)
-  let fitness = -232 * damageRatioByPlayer * ai.weightToDamageByPlayer
+  let fitness = 0
   for (const move of aiPoke.moves) {
     if (move === 0) {
       continue
@@ -442,6 +446,11 @@ function computeMatchupFitness (aiPoke, playerPoke, ai) {
     fitness += Math.floor((128 * moveData[move].accuracy * damageProportion * ai.weightToDamageByAi) / 255)
     const secondaryEffectBoost = getSecondaryBoost(aiPoke, playerPoke, move, ai)
     fitness += Math.floor((moveData[move].accuracy * secondaryEffectBoost * ai.weightToSecondaryEffects) / 255)
+    if (move === 120 || move === 153) {
+      fitness -= 58 * 255 * ai.weightToDamageByPlayer
+    } else {
+      fitness -= 58 * damageRatioByPlayer * ai.weightToDamageByPlayer
+    }
   }
   return fitness
 }
