@@ -1,10 +1,18 @@
-// Represents the output of Stadium 2's PRNG, modulo 2. The output is just an
-// alternating sequence of 0s and 1s.
-function BinaryPrng (seed) {
-  this.seed = seed
-  this.next = function () {
-    this.seed = 1 - this.seed
-    return this.seed
+// Represents the output of Stadium 2's PRNG, modulo 8.
+class OctalPrng {
+  constructor (seed) {
+    this.seed = seed
+    this.randBit = function () {
+      this.seed = (5 * this.seed + 7) % 8
+      return this.seed % 2
+    }
+    this.randOctalDigit = function () {
+      this.seed = (5 * this.seed + 7) % 8
+      return this.seed
+    }
+    this.clonePrng = function () {
+      return new OctalPrng(this.seed)
+    }
   }
 }
 
@@ -218,72 +226,90 @@ function displayPotentialAiTeams () {
     'poke-poke-r2', 'poke-great-r2', 'poke-ultra-r2', 'poke-master-r2'
   ]
   const trainer = cupData[cupDropdown.value][trainerDropdown.value]
-  let teamCombos = []
+  let allowableTeams = []
   for (let i = 0; i < 6; i++) {
     for (let j = i + 1; j < 6; j++) {
       for (let k = j + 1; k < 6; k++) {
-        teamCombos.push([i, j, k])
+        allowableTeams.push([i, j, k])
       }
     }
   }
 
   if (trainer.ai.mustUseFirstPoke) {
-    teamCombos = teamCombos.filter(team => team[0] === 0)
+    allowableTeams = allowableTeams.filter(team => team[0] === 0)
   }
 
   if (pokeCups.includes(cupDropdown.value)) {
-    teamCombos = teamCombos.filter(([i, j, k]) => (trainer.team[i].level + trainer.team[j].level + trainer.team[k].level) <= 155)
+    allowableTeams = allowableTeams.filter(([i, j, k]) => (trainer.team[i].level + trainer.team[j].level + trainer.team[k].level) <= 155)
   }
 
   if (trainer.ai.mustUseLastPoke) {
-    teamCombos = teamCombos.filter(team => team[2] === 5)
+    allowableTeams = allowableTeams.filter(team => team[2] === 5)
   }
 
   if (trainer.ai.mustUseFromAllColumns) {
-    teamCombos = teamCombos.filter(([i, j, k]) => ((i + j + k) % 3 === 0))
-  }
-
-  const combosWithFitness = teamCombos.map(team => [getTeamFitness(team, trainer), team]).sort(function (a, b) {
-    if (a[0] < b[0]) {
-      return 1
-    }
-    if (a[0] > b[0]) {
-      return -1
-    }
-    if (a[1] > b[1]) {
-      return 1
-    }
-    if (a[1] < b[1]) {
-      return -1
-    }
-    return 0
-  })
-
-  let possibleTeams = bestEightTeams(combosWithFitness)
-  if (trainer.ai.mustNotUseBothBestPokes && fitnessValues.flat().filter(isNaN).length === 0) {
-    const [bestPoke, secondBestPoke] = bestTwoPokes()
-    const noFirstPokeTeams = bestEightTeams(combosWithFitness.filter(([fitness, team]) => !team.includes(bestPoke)))
-    const noSecondBestPokeTeams = bestEightTeams(combosWithFitness.filter(([fitness, team]) => !team.includes(secondBestPoke)))
-    possibleTeams = noFirstPokeTeams.concat(noSecondBestPokeTeams.filter(team => !noFirstPokeTeams.includes(team)))
+    allowableTeams = allowableTeams.filter(([i, j, k]) => ((i + j + k) % 3 === 0))
   }
 
   const aiTeams = document.querySelector('#potential-teams-body')
   aiTeams.innerHTML = ''
-  for (const team of possibleTeams.sort()) {
-    const leads = decideLead(team, trainer)
+  // TODO: Change use of returned structure
+  for (const team of getPotentialTeamsWithLeads(allowableTeams, trainer)) {
     let leadText = '???'
-    if (!isNaN(leads[0])) {
-      leadText = leads.map(i => pokemonData[trainer.team[i].species].name).join(' / ')
+    if (team.leads[0] !== null) {
+      leadText = team.leads.map(i => pokemonData[trainer.team[i].species].name).join(' / ')
     }
     const row = document.createElement('tr')
     const teamData = document.createElement('td')
-    teamData.innerText = team.map(i => pokemonData[trainer.team[i].species].name).join(' / ')
+    teamData.innerText = team.team.map(i => pokemonData[trainer.team[i].species].name).join(' / ')
     const leadData = document.createElement('td')
     leadData.innerText = leadText
+    const seedData = document.createElement('td')
+    seedData.innerText = team.seeds.join(', ')
     row.appendChild(teamData)
     row.appendChild(leadData)
+    row.appendChild(seedData)
     aiTeams.appendChild(row)
   }
+}
+
+function getPotentialTeamsWithLeads (allowableTeams, trainer) {
+  let combosWithFitness = allowableTeams.map(team => [getTeamFitness(team, trainer), team])
+  const possibleOutcomes = new Map()
+
+  for (let i = 0; i < 8; i++) {
+    const prng = new OctalPrng(i)
+    const ruledOutMember = prng.randBit()
+    if (trainer.ai.mustNotUseBothBestPokes && fitnessValues.flat().filter(isNaN).length === 0) {
+      const [bestPoke, secondBestPoke] = bestTwoPokes()
+      if (ruledOutMember === 0) {
+        combosWithFitness = combosWithFitness.filter(([fitness, team]) => !team.includes(bestPoke))
+      } else {
+        combosWithFitness = combosWithFitness.filter(([fitness, team]) => !team.includes(secondBestPoke))
+      }
+    }
+    let potentialTeams = bestEightTeams(combosWithFitness, prng)
+    if ([1, 2, 4, 8].includes(potentialTeams.length)) {
+      potentialTeams = [potentialTeams[prng.randOctalDigit() % potentialTeams.length]]
+    } else if (potentialTeams.length === 6) {
+      const randomBit = prng.randBit()
+      potentialTeams = [potentialTeams[randomBit], potentialTeams[randomBit + 2], potentialTeams[randomBit + 4]]
+    }
+    for (const team of potentialTeams) {
+      const leads = decideLead(team, trainer, prng.clonePrng())
+      const key = JSON.stringify([team, leads])
+      if (possibleOutcomes.has(key)) {
+        possibleOutcomes.set(key, possibleOutcomes.get(key).concat([i]))
+      } else {
+        possibleOutcomes.set(key, [i])
+      }
+    }
+  }
+
+  return Array.from(possibleOutcomes)
+    .map(([key, seeds]) => JSON.parse(key).concat([seeds]))
+    .sort()
+    .map(([team, leads, seeds]) => ({ team: team, leads: leads, seeds: seeds }))
 }
 
 function bestTwoPokes () {
@@ -305,15 +331,34 @@ function bestTwoPokes () {
   return [bestPoke, secondBestPoke]
 }
 
-function bestEightTeams (teams) {
-  const lowestAllowedFitness = teams[Math.min(teams.length - 1, 7)][0]
-  if (isNaN(lowestAllowedFitness)) {
+function bestEightTeams (teams, prng) {
+  if (isNaN(teams[0][0])) {
     return teams.map(([fitness, team]) => team)
   }
-  return teams.filter(([fitness, team]) => fitness >= lowestAllowedFitness).map(([fitness, team]) => team)
+  let bestTeams = [teams[0]]
+  for (let i = 1; i < teams.length; i++) {
+    let insertPosition = -1
+    for (let j = 0; j < bestTeams.length; j++) {
+      if (bestTeams[j][0] < teams[i][0]) {
+        insertPosition = j
+        break
+      }
+      if (bestTeams[j][0] === teams[i][0] && prng.randBit()) {
+        insertPosition = j
+        break
+      }
+    }
+    if (insertPosition === -1 && bestTeams.length < 8) {
+      insertPosition = bestTeams.length
+    }
+    if (insertPosition !== -1) {
+      bestTeams = bestTeams.slice(0, insertPosition).concat([teams[i]]).concat(bestTeams.slice(insertPosition)).slice(0, 8)
+    }
+  }
+  return bestTeams.map(([fitness, team]) => team)
 }
 
-function decideLead (teamCombo, trainer) {
+function decideLead (teamCombo, trainer, prng) {
   if (trainer.ai.doesNotReorderTeam) {
     return [teamCombo[0]]
   }
@@ -323,18 +368,7 @@ function decideLead (teamCombo, trainer) {
   if (fitnessValues.flat().filter(isNaN).length) {
     return [NaN]
   }
-  const firstChoiceLead = chooseLead(teamCombo, trainer, new BinaryPrng(0))
-  const secondChoiceLead = chooseLead(teamCombo, trainer, new BinaryPrng(1))
-  if (firstChoiceLead === secondChoiceLead) {
-    return [firstChoiceLead]
-  }
-  if (firstChoiceLead < secondChoiceLead) {
-    return [firstChoiceLead, secondChoiceLead]
-  }
-  return [secondChoiceLead, firstChoiceLead]
-}
 
-function chooseLead (teamCombo, trainer, prng) {
   const fitnesses = teamCombo.map(i => fitnessValues[i].reduce((a, b) => a + b, 0))
 
   let bestFitness = fitnesses[0]
@@ -345,14 +379,14 @@ function chooseLead (teamCombo, trainer, prng) {
     if (fitnesses[i] > bestFitness) {
       bestFitness = fitnesses[i]
       bestFitnessPoke = i
-    } else if (fitnesses[i] === bestFitness && prng.next()) {
+    } else if (fitnesses[i] === bestFitness && prng.randBit()) {
       bestFitnessPoke = i
     }
     const newSpeed = trainer.team[teamCombo[i]].stats.speed
     if (newSpeed > bestSpeed) {
       bestSpeed = newSpeed
       bestSpeedPoke = i
-    } else if (newSpeed === bestSpeed && prng.next()) {
+    } else if (newSpeed === bestSpeed && prng.randBit()) {
       bestSpeedPoke = i
     }
   }
@@ -380,12 +414,12 @@ function chooseLead (teamCombo, trainer, prng) {
     if (leadFitnesses[i] > bestLeadFitness) {
       bestLeadFitness = leadFitnesses[i]
       bestLeadFitnessPoke = i
-    } else if (leadFitnesses[i] === bestLeadFitness && prng.next()) {
+    } else if (leadFitnesses[i] === bestLeadFitness && prng.randBit()) {
       bestLeadFitnessPoke = i
     }
   }
 
-  return teamCombo[bestLeadFitnessPoke]
+  return [teamCombo[bestLeadFitnessPoke]]
 }
 
 function getTeamFitness (teamCombo, trainer) {
