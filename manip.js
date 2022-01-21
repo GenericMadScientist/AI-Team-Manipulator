@@ -408,17 +408,37 @@ function getTeamFitness (teamCombo, trainer) {
         resistCount++
       }
     }
-    if (resistCount === 2) {
-      if (teamFitness > 0) {
-        teamFitness = Math.floor((9 * teamFitness) / 10)
+    if (resistCount < 2) {
+      continue
+    }
+    if (teamFitness > 0) {
+      if (resistCount === 2) {
+        teamFitness *= 9
       } else {
-        teamFitness = Math.ceil((11 * teamFitness) / 10)
+        teamFitness *= 7
       }
-    } else if (resistCount === 3) {
-      if (teamFitness > 0) {
-        teamFitness = Math.floor((7 * teamFitness) / 10)
+      // Yes this type of overflow can happen. For example, due to this there in
+      // Werster's Complete the Game PB R1 Great Ball Chen's evaluation for
+      // Spinarak/Haunter/Misdreavus goes so negative that it overflows and
+      // becomes positive before the division by 10 when applying the common Bug
+      // resistance.
+      if (teamFitness >= 0x80000000) {
+        teamFitness -= 0x100000000
+        teamFitness = Math.ceil(teamFitness / 10)
       } else {
-        teamFitness = Math.ceil((13 * teamFitness) / 10)
+        teamFitness = Math.floor(teamFitness / 10)
+      }
+    } else {
+      if (resistCount === 2) {
+        teamFitness *= 11
+      } else {
+        teamFitness *= 13
+      }
+      if (teamFitness < -0x80000000) {
+        teamFitness += 0x100000000
+        teamFitness = Math.floor(teamFitness / 10)
+      } else {
+        teamFitness = Math.ceil(teamFitness / 10)
       }
     }
   }
