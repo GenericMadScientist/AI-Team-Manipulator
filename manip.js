@@ -256,8 +256,10 @@ function displayPotentialAiTeams () {
   // TODO: Change use of returned structure
   for (const team of getPotentialTeamsWithLeads(allowableTeams, trainer)) {
     let leadText = '???'
+    let seedText = '???'
     if (team.leads[0] !== null) {
       leadText = team.leads.map(i => pokemonData[trainer.team[i].species].name).join(' / ')
+      seedText = team.seeds.join(', ')
     }
     const row = document.createElement('tr')
     const teamData = document.createElement('td')
@@ -265,7 +267,7 @@ function displayPotentialAiTeams () {
     const leadData = document.createElement('td')
     leadData.innerText = leadText
     const seedData = document.createElement('td')
-    seedData.innerText = team.seeds.join(', ')
+    seedData.innerText = seedText
     row.appendChild(teamData)
     row.appendChild(leadData)
     row.appendChild(seedData)
