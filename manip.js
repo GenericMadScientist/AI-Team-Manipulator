@@ -302,7 +302,12 @@ function getPotentialTeamsWithLeads (allowableTeams, trainer) {
     }
     for (const team of potentialTeams) {
       const leads = decideLead(team, trainer, prng.clonePrng())
-      const key = JSON.stringify([team, leads])
+      const teamCopy = [...team]
+      if (leads.length === 1 && leads[0] !== null) {
+        const leadIndex = team.indexOf(leads[0]);
+        [teamCopy[0], teamCopy[leadIndex]] = [teamCopy[leadIndex], teamCopy[0]]
+      }
+      const key = JSON.stringify([teamCopy, leads])
       if (possibleOutcomes.has(key)) {
         possibleOutcomes.set(key, possibleOutcomes.get(key).concat([i]))
       } else {
@@ -371,7 +376,7 @@ function decideLead (teamCombo, trainer, prng) {
     return [teamCombo[0], teamCombo[1], teamCombo[2]]
   }
   if (fitnessValues.flat().filter(isNaN).length) {
-    return [NaN]
+    return [null]
   }
 
   const fitnesses = teamCombo.map(i => fitnessValues[i].reduce((a, b) => a + b, 0))
