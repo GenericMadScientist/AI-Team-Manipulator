@@ -275,21 +275,22 @@ function displayPotentialAiTeams () {
 }
 
 function getPotentialTeamsWithLeads (allowableTeams, trainer) {
-  let combosWithFitness = allowableTeams.map(team => [getTeamFitness(team, trainer), team])
+  const combosWithFitness = allowableTeams.map(team => [getTeamFitness(team, trainer), team])
   const possibleOutcomes = new Map()
 
   for (let i = 0; i < 8; i++) {
     const prng = new OctalPrng(i)
     const ruledOutMember = prng.randBit()
+    let combosWithFitnessClone = [...combosWithFitness]
     if (trainer.ai.mustNotUseBothBestPokes && fitnessValues.flat().filter(isNaN).length === 0) {
       const [bestPoke, secondBestPoke] = bestTwoPokes()
       if (ruledOutMember === 0) {
-        combosWithFitness = combosWithFitness.filter(([fitness, team]) => !team.includes(bestPoke))
+        combosWithFitnessClone = combosWithFitness.filter(([fitness, team]) => !team.includes(bestPoke))
       } else {
-        combosWithFitness = combosWithFitness.filter(([fitness, team]) => !team.includes(secondBestPoke))
+        combosWithFitnessClone = combosWithFitness.filter(([fitness, team]) => !team.includes(secondBestPoke))
       }
     }
-    let potentialTeams = bestEightTeams(combosWithFitness, prng)
+    let potentialTeams = bestEightTeams(combosWithFitnessClone, prng)
     if ([1, 2, 4, 8].includes(potentialTeams.length)) {
       potentialTeams = [potentialTeams[prng.randOctalDigit() % potentialTeams.length]]
     } else if (potentialTeams.length === 6) {
