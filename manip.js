@@ -253,7 +253,6 @@ function displayPotentialAiTeams () {
 
   const aiTeams = document.querySelector('#potential-teams-body')
   aiTeams.innerHTML = ''
-  // TODO: Change use of returned structure
   for (const team of getPotentialTeamsWithLeads(allowableTeams, trainer)) {
     let leadText = '???'
     let seedText = '???'
@@ -296,6 +295,10 @@ function getPotentialTeamsWithLeads (allowableTeams, trainer) {
     } else if (potentialTeams.length === 6) {
       const randomBit = prng.randBit()
       potentialTeams = [potentialTeams[randomBit], potentialTeams[randomBit + 2], potentialTeams[randomBit + 4]]
+    } else {
+      // potentialTeams.length is odd and so coprime to 2^32, but we still need
+      // to call the PRNG to advance it for lead selection
+      prng.randOctalDigit()
     }
     for (const team of potentialTeams) {
       const leads = decideLead(team, trainer, prng.clonePrng())
