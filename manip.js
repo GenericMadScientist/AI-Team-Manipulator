@@ -16,6 +16,28 @@ class OctalPrng {
   }
 }
 
+// Represents the output of Stadium 2's PRNG, modulo 65536.
+class ShortPrng {
+  constructor (seed) {
+    this.seed = seed
+    this.randBit = function () {
+      this.seed = (0x660D * this.seed + 0xF35F) % 65536
+      return this.seed % 2
+    }
+    this.randOctalDigit = function () {
+      this.seed = (0x660D * this.seed + 0xF35F) % 65536
+      return this.seed % 8
+    }
+    this.randShort = function () {
+      this.seed = (0x660D * this.seed + 0xF35F) % 65536
+      return this.seed
+    }
+    this.clonePrng = function () {
+      return new ShortPrng(this.seed)
+    }
+  }
+}
+
 const cupDropdown = document.querySelector('#cup')
 const trainerDropdown = document.querySelector('#trainer')
 const roundTwoCheckbox = document.querySelector('#use-round-two-rentals')
@@ -252,9 +274,15 @@ function displayPotentialAiTeams () {
 
   const aiTeams = document.querySelector('#potential-teams-body')
   aiTeams.innerHTML = ''
-  for (const team of getPotentialTeamsWithLeads(allowableTeams, trainer)) {
+  let teamsWithLeads = []
+  if (trainer.ai.randomFitness) {
+    teamsWithLeads = getPotentialTeamsWithLeadsRandomFitness(allowableTeams, trainer)
+  } else {
+    teamsWithLeads = getPotentialTeamsWithLeads(allowableTeams, trainer)
+  }
+  for (const team of teamsWithLeads) {
     let probabilityText = '???'
-    if (!fitnessValues.flat().filter(isNaN).length) {
+    if (!fitnessValues.flat().some(isNaN) || trainer.ai.randomFitness) {
       probabilityText = team.probability.toLocaleString(undefined, { style: 'percent', minimumFractionDigits: 2 })
     }
     const row = document.createElement('tr')
@@ -269,7 +297,9 @@ function displayPotentialAiTeams () {
 }
 
 function getPotentialTeamsWithLeads (allowableTeams, trainer) {
-  const combosWithFitness = allowableTeams.map(team => ({ team: team, fitness: getTeamFitness(team, trainer) }))
+  const fitnesses = fitnessValues.map(fs => fs.reduce((a, b) => a + b, 0))
+  const resistances = trainer.team.map(p => Array.from(Array(28).keys()).map(i => doesResist(i, pokemonData[p.species].types)))
+  const combosWithFitness = allowableTeams.map(team => ({ team: team, fitness: getTeamFitness(team, trainer, fitnesses, resistances) }))
   const possibleOutcomes = new Map()
   const seedWeights = [27, 9, 9, 3, 9, 3, 3, 1]
 
@@ -277,7 +307,7 @@ function getPotentialTeamsWithLeads (allowableTeams, trainer) {
     const prng = new OctalPrng(i)
     const ruledOutMember = prng.randBit()
     let combosWithFitnessClone = [...combosWithFitness]
-    if (trainer.ai.mustNotUseBothBestPokes && fitnessValues.flat().filter(isNaN).length === 0) {
+    if (trainer.ai.mustNotUseBothBestPokes && !fitnessValues.flat().some(isNaN)) {
       const [bestPoke, secondBestPoke] = bestTwoPokes()
       if (ruledOutMember === 0) {
         combosWithFitnessClone = combosWithFitness.filter(fitnessedTeam => !fitnessedTeam.team.includes(bestPoke))
@@ -299,6 +329,77 @@ function getPotentialTeamsWithLeads (allowableTeams, trainer) {
     for (const team of potentialTeams) {
       const leads = decideLead(team, trainer, prng.clonePrng())
       const probabilityIncrement = seedWeights[i] / (64 * potentialTeams.length * leads.length)
+      for (const lead of leads) {
+        const teamCopy = [...team]
+        const leadIndex = team.indexOf(lead);
+        [teamCopy[0], teamCopy[leadIndex]] = [teamCopy[leadIndex], teamCopy[0]]
+        const key = JSON.stringify(teamCopy)
+        if (possibleOutcomes.has(key)) {
+          possibleOutcomes.set(key, possibleOutcomes.get(key) + probabilityIncrement)
+        } else {
+          possibleOutcomes.set(key, probabilityIncrement)
+        }
+      }
+    }
+  }
+
+  return Array.from(possibleOutcomes)
+    .sort(
+      function (a, b) {
+        if (a[1] !== b[1]) {
+          return b[1] - a[1]
+        }
+        return a[0].localeCompare(b[0])
+      }
+    )
+    .map(([team, probability]) => ({ team: JSON.parse(team), probability: probability }))
+}
+
+function getPotentialTeamsWithLeadsRandomFitness (allowableTeams, trainer) {
+  const resistances = trainer.team.map(p => Array.from(Array(28).keys()).map(i => doesResist(i, pokemonData[p.species].types)))
+  const possibleOutcomes = new Map()
+
+  for (let i = 0; i < 65536; i++) {
+    const prng = new ShortPrng(i)
+    const fitnesses = []
+    for (let j = 0; j < 6; j++) {
+      fitnesses.push(prng.randShort())
+    }
+    const combosWithFitness = allowableTeams.map(team => ({ team: team, fitness: getTeamFitness(team, trainer, fitnesses, resistances) }))
+    const ruledOutMember = prng.randBit()
+    let combosWithFitnessClone = [...combosWithFitness]
+    if (trainer.ai.mustNotUseBothBestPokes) {
+      const [bestPoke, secondBestPoke] = bestTwoPokes()
+      if (ruledOutMember === 0) {
+        combosWithFitnessClone = combosWithFitness.filter(fitnessedTeam => !fitnessedTeam.team.includes(bestPoke))
+      } else {
+        combosWithFitnessClone = combosWithFitness.filter(fitnessedTeam => !fitnessedTeam.team.includes(secondBestPoke))
+      }
+    }
+    let potentialTeams = bestEightTeams(combosWithFitnessClone, prng)
+    if ([1, 2, 4, 8].includes(potentialTeams.length)) {
+      potentialTeams = [potentialTeams[prng.randOctalDigit() % potentialTeams.length]]
+    } else if (potentialTeams.length === 6) {
+      const randomBit = prng.randBit()
+      potentialTeams = [potentialTeams[randomBit], potentialTeams[randomBit + 2], potentialTeams[randomBit + 4]]
+    } else {
+      // potentialTeams.length is odd and so coprime to 2^32, but we still need
+      // to call the PRNG to advance it for lead selection
+      prng.randOctalDigit()
+    }
+    let seedWeight = 1
+    let seed = i
+    for (let j = 0; j < 16; ++j) {
+      if (seed & 1) {
+        seedWeight *= 0.25
+      } else {
+        seedWeight *= 0.75
+      }
+      seed >>= 1
+    }
+    for (const team of potentialTeams) {
+      const leads = decideLead(team, trainer, prng.clonePrng())
+      const probabilityIncrement = seedWeight / (potentialTeams.length * leads.length)
       for (const lead of leads) {
         const teamCopy = [...team]
         const leadIndex = team.indexOf(lead);
@@ -348,7 +449,7 @@ function bestEightTeams (teams, prng) {
   if (isNaN(teams[0].fitness)) {
     return teams.map(fitnessedTeam => fitnessedTeam.team)
   }
-  let bestTeams = [teams[0]]
+  const bestTeams = [teams[0]]
   for (let i = 1; i < teams.length; i++) {
     let insertPosition = -1
     for (let j = 0; j < bestTeams.length; j++) {
@@ -365,7 +466,11 @@ function bestEightTeams (teams, prng) {
       insertPosition = bestTeams.length
     }
     if (insertPosition !== -1) {
-      bestTeams = bestTeams.slice(0, insertPosition).concat([teams[i]]).concat(bestTeams.slice(insertPosition)).slice(0, 8)
+      if (bestTeams.length < 8) {
+        bestTeams.push(null)
+      }
+      bestTeams.copyWithin(insertPosition + 1, insertPosition)
+      bestTeams[insertPosition] = teams[i]
     }
   }
   return bestTeams.map(fitnessedTeam => fitnessedTeam.team)
@@ -375,7 +480,7 @@ function decideLead (teamCombo, trainer, prng) {
   if (trainer.ai.doesNotReorderTeam) {
     return [teamCombo[0]]
   }
-  if (trainer.ai.usesRandomLead || fitnessValues.flat().filter(isNaN).length) {
+  if (trainer.ai.usesRandomLead || (!trainer.ai.randomFitness && fitnessValues.flat().some(isNaN))) {
     return [teamCombo[0], teamCombo[1], teamCombo[2]]
   }
 
@@ -432,26 +537,23 @@ function decideLead (teamCombo, trainer, prng) {
   return [teamCombo[bestLeadFitnessPoke]]
 }
 
-function getTeamFitness (teamCombo, trainer) {
-  let teamFitness = teamCombo.flatMap(index => fitnessValues[index]).reduce((a, b) => a + b, 0)
+function doesResist (attackType, defenderTypes) {
+  let index = 28 * 28 * attackType + 28 * defenderTypes[0]
+  if (defenderTypes.length === 1) {
+    index += defenderTypes[0]
+  } else {
+    index += defenderTypes[1]
+  }
+  return precomputedResists[index]
+}
+
+function getTeamFitness (teamCombo, trainer, fitnesses, resistances) {
+  let teamFitness = teamCombo.reduce((a, b) => a + fitnesses[b], 0)
   if (trainer.ai.doesNotPenaliseCommonResistances) {
     return teamFitness
   }
-  const aiPokes = trainer.team
   for (let i = 0; i < 10; i++) {
-    let resistCount = 0
-    for (const member of teamCombo) {
-      const memberTypes = pokemonData[aiPokes[member].species].types
-      let dmgMultiple = 1
-      for (const [aType, dType, mult] of typeMatchups) {
-        if (aType === i && memberTypes.includes(dType)) {
-          dmgMultiple = (dmgMultiple * mult) / 10
-        }
-      }
-      if (dmgMultiple < 1) {
-        resistCount++
-      }
-    }
+    const resistCount = resistances[teamCombo[0]][i] + resistances[teamCombo[1]][i] + resistances[teamCombo[2]][i]
     if (resistCount < 2) {
       continue
     }
