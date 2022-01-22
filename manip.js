@@ -40,7 +40,6 @@ class ShortPrng {
 
 const cupDropdown = document.querySelector('#cup')
 const trainerDropdown = document.querySelector('#trainer')
-const roundTwoCheckbox = document.querySelector('#use-round-two-rentals')
 let rentalPool = {}
 const fitnessValues = [
   [NaN, NaN, NaN, NaN, NaN, NaN],
@@ -57,9 +56,6 @@ trainerDropdown.addEventListener('change', displayTeam)
 trainerDropdown.addEventListener('change', changeRentalPool)
 trainerDropdown.addEventListener('change', assignFitnessValues)
 trainerDropdown.addEventListener('change', displayPotentialAiTeams)
-roundTwoCheckbox.addEventListener('change', changeRentalPool)
-roundTwoCheckbox.addEventListener('change', assignFitnessValues)
-roundTwoCheckbox.addEventListener('change', displayPotentialAiTeams)
 
 for (const select of document.querySelector('#rental-selections').children) {
   select.addEventListener('change', assignFitnessValues)
@@ -160,11 +156,10 @@ function changeRentalPool () {
   if (cup === 'little-r1' || cup === 'little-r2') {
     newRentals = rentals.little
   } else if (cup === 'prime-r1' || cup === 'prime-r2') {
-    if (roundTwoCheckbox.checked) {
-      newRentals = rentals.primeR2
-    } else {
-      newRentals = rentals.primeR1
-    }
+    // The only change aside from the addition of Mew and Celebi is the change
+    // of a move on Pikachu and Psyduck, but no Prime Cup opponents read your
+    // moves for team selection so it is irrelevant.
+    newRentals = rentals.primeR2
   } else if (earlDivisions.includes(cup)) {
     newRentals = earlRentals[cup][trainerDropdown.value]
   }
