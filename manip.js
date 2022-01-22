@@ -214,10 +214,9 @@ function fitnessValueToText (fitness) {
   if (isNaN(fitness)) {
     return '???'
   }
-  if (fitness >= 0) {
-    return `<span class="positive-fitness">+${fitness.toLocaleString()}</span>`
-  }
-  return `<span class="negative-fitness">${fitness.toLocaleString()}</span>`
+  const fitnessStr = fitness.toLocaleString(undefined, { signDisplay: 'always' })
+  const signClass = (fitness >= 0) ? 'positive-fitness' : 'negative-fitness'
+  return `<span class="${signClass}">${fitnessStr}</span>`
 }
 
 function displayPotentialAiTeams () {
@@ -254,29 +253,25 @@ function displayPotentialAiTeams () {
   const aiTeams = document.querySelector('#potential-teams-body')
   aiTeams.innerHTML = ''
   for (const team of getPotentialTeamsWithLeads(allowableTeams, trainer)) {
-    let leadText = '???'
-    let seedText = '???'
-    if (team.leads[0] !== null) {
-      leadText = team.leads.map(i => pokemonData[trainer.team[i].species].name).join(' / ')
-      seedText = team.seeds.join(', ')
+    let probabilityText = '???'
+    if (!fitnessValues.flat().filter(isNaN).length) {
+      probabilityText = team.probability.toLocaleString(undefined, { style: 'percent', minimumFractionDigits: 2 })
     }
     const row = document.createElement('tr')
     const teamData = document.createElement('td')
     teamData.innerText = team.team.map(i => pokemonData[trainer.team[i].species].name).join(' / ')
-    const leadData = document.createElement('td')
-    leadData.innerText = leadText
-    const seedData = document.createElement('td')
-    seedData.innerText = seedText
+    const probabilityData = document.createElement('td')
+    probabilityData.innerText = probabilityText
     row.appendChild(teamData)
-    row.appendChild(leadData)
-    row.appendChild(seedData)
+    row.appendChild(probabilityData)
     aiTeams.appendChild(row)
   }
 }
 
 function getPotentialTeamsWithLeads (allowableTeams, trainer) {
-  const combosWithFitness = allowableTeams.map(team => [getTeamFitness(team, trainer), team])
+  const combosWithFitness = allowableTeams.map(team => ({ team: team, fitness: getTeamFitness(team, trainer) }))
   const possibleOutcomes = new Map()
+  const seedWeights = [27, 9, 9, 3, 9, 3, 3, 1]
 
   for (let i = 0; i < 8; i++) {
     const prng = new OctalPrng(i)
@@ -285,9 +280,9 @@ function getPotentialTeamsWithLeads (allowableTeams, trainer) {
     if (trainer.ai.mustNotUseBothBestPokes && fitnessValues.flat().filter(isNaN).length === 0) {
       const [bestPoke, secondBestPoke] = bestTwoPokes()
       if (ruledOutMember === 0) {
-        combosWithFitnessClone = combosWithFitness.filter(([fitness, team]) => !team.includes(bestPoke))
+        combosWithFitnessClone = combosWithFitness.filter(fitnessedTeam => !fitnessedTeam.team.includes(bestPoke))
       } else {
-        combosWithFitnessClone = combosWithFitness.filter(([fitness, team]) => !team.includes(secondBestPoke))
+        combosWithFitnessClone = combosWithFitness.filter(fitnessedTeam => !fitnessedTeam.team.includes(secondBestPoke))
       }
     }
     let potentialTeams = bestEightTeams(combosWithFitnessClone, prng)
@@ -303,24 +298,31 @@ function getPotentialTeamsWithLeads (allowableTeams, trainer) {
     }
     for (const team of potentialTeams) {
       const leads = decideLead(team, trainer, prng.clonePrng())
-      const teamCopy = [...team]
-      if (leads.length === 1 && leads[0] !== null) {
-        const leadIndex = team.indexOf(leads[0]);
+      const probabilityIncrement = seedWeights[i] / (64 * potentialTeams.length * leads.length)
+      for (const lead of leads) {
+        const teamCopy = [...team]
+        const leadIndex = team.indexOf(lead);
         [teamCopy[0], teamCopy[leadIndex]] = [teamCopy[leadIndex], teamCopy[0]]
-      }
-      const key = JSON.stringify([teamCopy, leads])
-      if (possibleOutcomes.has(key)) {
-        possibleOutcomes.set(key, possibleOutcomes.get(key).concat([i]))
-      } else {
-        possibleOutcomes.set(key, [i])
+        const key = JSON.stringify(teamCopy)
+        if (possibleOutcomes.has(key)) {
+          possibleOutcomes.set(key, possibleOutcomes.get(key) + probabilityIncrement)
+        } else {
+          possibleOutcomes.set(key, probabilityIncrement)
+        }
       }
     }
   }
 
   return Array.from(possibleOutcomes)
-    .map(([key, seeds]) => JSON.parse(key).concat([seeds]))
-    .sort()
-    .map(([team, leads, seeds]) => ({ team: team, leads: leads, seeds: seeds }))
+    .sort(
+      function (a, b) {
+        if (a[1] !== b[1]) {
+          return b[1] - a[1]
+        }
+        return a[0].localeCompare(b[0])
+      }
+    )
+    .map(([team, probability]) => ({ team: JSON.parse(team), probability: probability }))
 }
 
 function bestTwoPokes () {
@@ -343,18 +345,18 @@ function bestTwoPokes () {
 }
 
 function bestEightTeams (teams, prng) {
-  if (isNaN(teams[0][0])) {
-    return teams.map(([fitness, team]) => team)
+  if (isNaN(teams[0].fitness)) {
+    return teams.map(fitnessedTeam => fitnessedTeam.team)
   }
   let bestTeams = [teams[0]]
   for (let i = 1; i < teams.length; i++) {
     let insertPosition = -1
     for (let j = 0; j < bestTeams.length; j++) {
-      if (bestTeams[j][0] < teams[i][0]) {
+      if (bestTeams[j].fitness < teams[i].fitness) {
         insertPosition = j
         break
       }
-      if (bestTeams[j][0] === teams[i][0] && prng.randBit()) {
+      if (bestTeams[j].fitness === teams[i].fitness && prng.randBit()) {
         insertPosition = j
         break
       }
@@ -366,18 +368,15 @@ function bestEightTeams (teams, prng) {
       bestTeams = bestTeams.slice(0, insertPosition).concat([teams[i]]).concat(bestTeams.slice(insertPosition)).slice(0, 8)
     }
   }
-  return bestTeams.map(([fitness, team]) => team)
+  return bestTeams.map(fitnessedTeam => fitnessedTeam.team)
 }
 
 function decideLead (teamCombo, trainer, prng) {
   if (trainer.ai.doesNotReorderTeam) {
     return [teamCombo[0]]
   }
-  if (trainer.ai.usesRandomLead) {
+  if (trainer.ai.usesRandomLead || fitnessValues.flat().filter(isNaN).length) {
     return [teamCombo[0], teamCombo[1], teamCombo[2]]
-  }
-  if (fitnessValues.flat().filter(isNaN).length) {
-    return [null]
   }
 
   const fitnesses = teamCombo.map(i => fitnessValues[i].reduce((a, b) => a + b, 0))
