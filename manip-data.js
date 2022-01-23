@@ -31510,7 +31510,7 @@ const cupData = {
   ],
   'kanto-r2': [
     {
-      name: 'Gym Leader Pewter',
+      name: 'Gym Leader Brock',
       ai: {
         ignoresTypeMatchups: false,
         randomFitness: false,
