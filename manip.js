@@ -354,7 +354,7 @@ function getPotentialTeamsWithLeadsRandomFitness (allowableTeams, trainer) {
   const resistances = trainer.team.map(p => Array.from(Array(28).keys()).map(i => doesResist(i, pokemonData[p.species].types)))
   const possibleOutcomes = new Map()
 
-  for (let i = 0; i < 65536; i++) {
+  for (let i = 0; i < 16384; i++) {
     const prng = new ShortPrng(i)
     const fitnesses = []
     for (let j = 0; j < 6; j++) {
@@ -382,9 +382,10 @@ function getPotentialTeamsWithLeadsRandomFitness (allowableTeams, trainer) {
       // to call the PRNG to advance it for lead selection
       prng.randOctalDigit()
     }
-    let seedWeight = 1
-    let seed = i
-    for (let j = 0; j < 16; ++j) {
+    // The top two bits being fed into the & by the quadratic PRNG for the mod
+    // 65536 are always 0, hence why we only need to look at 14 bits and loop
+    // to 0x3FFF.
+    for (let j = 0; j < 14; ++j) {
       if (seed & 1) {
         seedWeight *= 0.25
       } else {
