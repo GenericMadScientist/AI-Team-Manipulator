@@ -386,6 +386,7 @@ function getPotentialTeamsWithLeadsRandomFitness (allowableTeams, trainer) {
     // 65536 are always 0, hence why we only need to look at 14 bits and loop
     // to 0x3FFF.
     let seed = i
+    let seedWeight = 1.0
     for (let j = 0; j < 14; ++j) {
       if (seed & 1) {
         seedWeight *= 0.25
