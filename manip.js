@@ -549,14 +549,13 @@ function getTeamFitness (teamCombo, trainer, fitnesses, resistances) {
   }
   for (let i = 0; i < 10; i++) {
     const resistCount = resistances[teamCombo[0]][i] + resistances[teamCombo[1]][i] + resistances[teamCombo[2]][i]
-    if (resistCount < 2) {
-      continue
-    }
     if (teamFitness > 0) {
       if (resistCount === 2) {
         teamFitness *= 9
-      } else {
+      } else if (resistCount === 3) {
         teamFitness *= 7
+      } else {
+        teamFitness *= 10
       }
       // Yes this type of overflow can happen. For example, due to this there in
       // Werster's Complete the Game PB R1 Great Ball Chen's evaluation for
@@ -572,8 +571,10 @@ function getTeamFitness (teamCombo, trainer, fitnesses, resistances) {
     } else {
       if (resistCount === 2) {
         teamFitness *= 11
-      } else {
+      } else if (resistCount === 3) {
         teamFitness *= 13
+      } else {
+        teamFitness *= 10
       }
       if (teamFitness < -0x80000000) {
         teamFitness += 0x100000000
