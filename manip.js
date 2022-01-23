@@ -385,6 +385,7 @@ function getPotentialTeamsWithLeadsRandomFitness (allowableTeams, trainer) {
     // The top two bits being fed into the & by the quadratic PRNG for the mod
     // 65536 are always 0, hence why we only need to look at 14 bits and loop
     // to 0x3FFF.
+    let seed = i
     for (let j = 0; j < 14; ++j) {
       if (seed & 1) {
         seedWeight *= 0.25
