@@ -293,8 +293,7 @@ function displayPotentialAiTeams () {
 
 function getPotentialTeamsWithLeads (allowableTeams, trainer) {
   const fitnesses = fitnessValues.map(fs => fs.reduce((a, b) => a + b, 0))
-  const resistances = trainer.team.map(p => Array.from(Array(28).keys()).map(i => doesResist(i, pokemonData[p.species].types)))
-  const combosWithFitness = allowableTeams.map(team => ({ team: team, fitness: getTeamFitness(team, trainer, fitnesses, resistances) }))
+  const combosWithFitness = allowableTeams.map(team => ({ team: team, fitness: getTeamFitness(team, trainer, fitnesses) }))
   const possibleOutcomes = new Map()
   const seedWeights = [27, 9, 9, 3, 9, 3, 3, 1]
 
@@ -351,7 +350,6 @@ function getPotentialTeamsWithLeads (allowableTeams, trainer) {
 }
 
 function getPotentialTeamsWithLeadsRandomFitness (allowableTeams, trainer) {
-  const resistances = trainer.team.map(p => Array.from(Array(28).keys()).map(i => doesResist(i, pokemonData[p.species].types)))
   const possibleOutcomes = new Map()
 
   for (let i = 0; i < 16384; i++) {
@@ -360,7 +358,7 @@ function getPotentialTeamsWithLeadsRandomFitness (allowableTeams, trainer) {
     for (let j = 0; j < 6; j++) {
       fitnesses.push(prng.randShort())
     }
-    const combosWithFitness = allowableTeams.map(team => ({ team: team, fitness: getTeamFitness(team, trainer, fitnesses, resistances) }))
+    const combosWithFitness = allowableTeams.map(team => ({ team: team, fitness: getTeamFitness(team, trainer, fitnesses) }))
     const ruledOutMember = prng.randBit()
     let combosWithFitnessClone = [...combosWithFitness]
     if (trainer.ai.mustNotUseBothBestPokes) {
@@ -535,23 +533,13 @@ function decideLead (teamCombo, trainer, prng) {
   return [teamCombo[bestLeadFitnessPoke]]
 }
 
-function doesResist (attackType, defenderTypes) {
-  let index = 28 * 28 * attackType + 28 * defenderTypes[0]
-  if (defenderTypes.length === 1) {
-    index += defenderTypes[0]
-  } else {
-    index += defenderTypes[1]
-  }
-  return precomputedResists[index]
-}
-
-function getTeamFitness (teamCombo, trainer, fitnesses, resistances) {
+function getTeamFitness (teamCombo, trainer, fitnesses) {
   let teamFitness = teamCombo.reduce((a, b) => a + fitnesses[b], 0)
   if (trainer.ai.doesNotPenaliseCommonResistances) {
     return teamFitness
   }
   for (let i = 0; i < 10; i++) {
-    const resistCount = resistances[teamCombo[0]][i] + resistances[teamCombo[1]][i] + resistances[teamCombo[2]][i]
+    const resistCount = teamCombo.filter(p => pokemonData[trainer.team[p].species].physicalResists.includes(i)).length
     if (teamFitness > 0) {
       if (resistCount === 2) {
         teamFitness *= 9
