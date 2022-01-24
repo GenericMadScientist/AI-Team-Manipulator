@@ -321,7 +321,7 @@ function getPotentialTeamsWithLeads (allowableTeams, trainer) {
       prng.randOctalDigit()
     }
     for (const team of potentialTeams) {
-      const leads = decideLead(team, trainer, prng.clonePrng())
+      const leads = decideLead(team, trainer, team.map(i => fitnessValues[i].reduce((a, b) => a + b, 0)), prng.clonePrng())
       const probabilityIncrement = seedWeights[i] / (64 * potentialTeams.length * leads.length)
       for (const lead of leads) {
         const teamCopy = [...team]
@@ -394,7 +394,7 @@ function getPotentialTeamsWithLeadsRandomFitness (allowableTeams, trainer) {
       seed >>= 1
     }
     for (const team of potentialTeams) {
-      const leads = decideLead(team, trainer, prng.clonePrng())
+      const leads = decideLead(team, trainer, team.map(i => fitnesses[i]), prng.clonePrng())
       const probabilityIncrement = seedWeight / (potentialTeams.length * leads.length)
       for (const lead of leads) {
         const teamCopy = [...team]
@@ -472,15 +472,13 @@ function bestEightTeams (teams, prng) {
   return bestTeams.map(fitnessedTeam => fitnessedTeam.team)
 }
 
-function decideLead (teamCombo, trainer, prng) {
+function decideLead (teamCombo, trainer, fitnesses, prng) {
   if (trainer.ai.doesNotReorderTeam) {
     return [teamCombo[0]]
   }
-  if (trainer.ai.usesRandomLead || (!trainer.ai.randomFitness && fitnessValues.flat().some(isNaN))) {
+  if (trainer.ai.usesRandomLead || (!trainer.ai.randomFitness && fitnesses.some(isNaN))) {
     return [teamCombo[0], teamCombo[1], teamCombo[2]]
   }
-
-  const fitnesses = teamCombo.map(i => fitnessValues[i].reduce((a, b) => a + b, 0))
 
   let bestFitness = fitnesses[0]
   let bestFitnessPoke = 0
