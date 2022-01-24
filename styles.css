@@ -5,7 +5,6 @@ header > * {
 
 a {
     margin-left: 0.333em;
-    margin-right: 0.333em;
     color: deepskyblue;
 }
 
@@ -20,11 +19,16 @@ button, input, select {
     font-family: inherit;
 }
 
-#non-rentals-input {
+#input {
     display: grid;
     grid-template-columns: 100px 200px;
     align-items: center;
     gap: 5px;
+}
+
+#input > * {
+    margin-top: 0px;
+    margin-bottom: 0px;
 }
 
 ol {
@@ -34,6 +38,7 @@ ol {
 ol#rental-selections {
     display: flex;
     gap: 5px;
+    padding: 0px;
 }
 
 ol#team {

@@ -13,55 +13,57 @@
 <body>
     <header>
         <h1>Pokémon Stadium 2 AI Team Manipulator</h1>
-        <p>A little something to understand how Stadium 2's AI selects its teams. Details in an upcoming blog post! </p>
+        <p>
+            A little something to understand how Stadium 2's AI selects its teams. Learn about how the game works
+            <a href="https://genericmadscientist.github.io/posts/ps2-ai-teams/">here</a>.
+        </p>
     </header>
 
     <div id="input">
-        <div id="non-rentals-input">
-            <label for="cup">Cup</label>
-            <select id="cup" name="cup">
-                <option value="poke-poke-r1">Poké Cup Poké Ball R1</option>
-                <option value="poke-great-r1">Poké Cup Great Ball R1</option>
-                <option value="poke-ultra-r1">Poké Cup Ultra Ball R1</option>
-                <option value="poke-master-r1">Poké Cup Master Ball R1</option>
-                <option value="little-r1">Little Cup R1</option>
-                <option value="prime-r1">Prime Cup R1</option>
-                <option value="violet-r1">Violet Gym R1</option>
-                <option value="azalea-r1">Azalea Gym R1</option>
-                <option value="goldenrod-r1">Goldenrod Gym R1</option>
-                <option value="ecruteak-r1">Ecruteak Gym R1</option>
-                <option value="cianwood-r1">Cianwood Gym R1</option>
-                <option value="olivine-r1">Olivine Gym R1</option>
-                <option value="team-rocket-r1">Team Rocket R1</option>
-                <option value="mahogany-r1">Mahogany Gym R1</option>
-                <option value="blackthorn-r1">Blackthorn Gym R1</option>
-                <option value="elite-four-r1">Elite Four R1</option>
-                <option value="kanto-r1">Kanto R1</option>
-                <option value="poke-poke-r2">Poké Cup Poké Ball R2</option>
-                <option value="poke-great-r2">Poké Cup Great Ball R2</option>
-                <option value="poke-ultra-r2">Poké Cup Ultra Ball R2</option>
-                <option value="poke-master-r2">Poké Cup Master Ball R2</option>
-                <option value="little-r2">Little Cup R2</option>
-                <option value="prime-r2">Prime Cup R2</option>
-                <option value="violet-r2">Violet Gym R2</option>
-                <option value="azalea-r2">Azalea Gym R2</option>
-                <option value="goldenrod-r2">Goldenrod Gym R2</option>
-                <option value="ecruteak-r2">Ecruteak Gym R2</option>
-                <option value="cianwood-r2">Cianwood Gym R2</option>
-                <option value="olivine-r2">Olivine Gym R2</option>
-                <option value="team-rocket-r2">Team Rocket R2</option>
-                <option value="mahogany-r2">Mahogany Gym R2</option>
-                <option value="blackthorn-r2">Blackthorn Gym R2</option>
-                <option value="elite-four-r2">Elite Four R2</option>
-                <option value="kanto-r2">Kanto R2</option>
-                <option value="earl-trainer">Earl's Academy Trainer Class</option>
-                <option value="earl-gym-leader">Earl's Academy Gym Leader Class</option>
-                <option value="earl-elite-four">Earl's Academy Elite Four Class</option>
-            </select>
-            <label for="trainer">Trainer</label>
-            <select id="trainer" name="trainer">
-            </select>
-        </div>
+        <label for="cup">Cup</label>
+        <select id="cup" name="cup">
+            <option value="poke-poke-r1">Poké Cup Poké Ball R1</option>
+            <option value="poke-great-r1">Poké Cup Great Ball R1</option>
+            <option value="poke-ultra-r1">Poké Cup Ultra Ball R1</option>
+            <option value="poke-master-r1">Poké Cup Master Ball R1</option>
+            <option value="little-r1">Little Cup R1</option>
+            <option value="prime-r1">Prime Cup R1</option>
+            <option value="violet-r1">Violet Gym R1</option>
+            <option value="azalea-r1">Azalea Gym R1</option>
+            <option value="goldenrod-r1">Goldenrod Gym R1</option>
+            <option value="ecruteak-r1">Ecruteak Gym R1</option>
+            <option value="cianwood-r1">Cianwood Gym R1</option>
+            <option value="olivine-r1">Olivine Gym R1</option>
+            <option value="team-rocket-r1">Team Rocket R1</option>
+            <option value="mahogany-r1">Mahogany Gym R1</option>
+            <option value="blackthorn-r1">Blackthorn Gym R1</option>
+            <option value="elite-four-r1">Elite Four R1</option>
+            <option value="kanto-r1">Kanto R1</option>
+            <option value="poke-poke-r2">Poké Cup Poké Ball R2</option>
+            <option value="poke-great-r2">Poké Cup Great Ball R2</option>
+            <option value="poke-ultra-r2">Poké Cup Ultra Ball R2</option>
+            <option value="poke-master-r2">Poké Cup Master Ball R2</option>
+            <option value="little-r2">Little Cup R2</option>
+            <option value="prime-r2">Prime Cup R2</option>
+            <option value="violet-r2">Violet Gym R2</option>
+            <option value="azalea-r2">Azalea Gym R2</option>
+            <option value="goldenrod-r2">Goldenrod Gym R2</option>
+            <option value="ecruteak-r2">Ecruteak Gym R2</option>
+            <option value="cianwood-r2">Cianwood Gym R2</option>
+            <option value="olivine-r2">Olivine Gym R2</option>
+            <option value="team-rocket-r2">Team Rocket R2</option>
+            <option value="mahogany-r2">Mahogany Gym R2</option>
+            <option value="blackthorn-r2">Blackthorn Gym R2</option>
+            <option value="elite-four-r2">Elite Four R2</option>
+            <option value="kanto-r2">Kanto R2</option>
+            <option value="earl-trainer">Earl's Academy Trainer Class</option>
+            <option value="earl-gym-leader">Earl's Academy Gym Leader Class</option>
+            <option value="earl-elite-four">Earl's Academy Elite Four Class</option>
+        </select>
+        <label for="trainer">Trainer</label>
+        <select id="trainer" name="trainer">
+        </select>
+        <p id="rentals-label">Rentals</p>
         <ol id="rental-selections">
             <li>
                 <select></select>
@@ -82,6 +84,7 @@
                 <select></select>
             </li>
         </ol>
+    </div>
     </div>
 
     <ol id="team">
