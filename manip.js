@@ -90,6 +90,7 @@ function displayAiData () {
     usesRandomLead: 'Uses random lead',
     mustUseFromAllColumns: 'Always selects one from each column',
     mustNotUseBothBestPokes: 'Does not use both of two best pokémon',
+    onlyUsesTopFourTeams: 'Only picks from top four instead of top eight teams',
     doesNotPenaliseCommonResistances: 'Does not penalise teams with overlapping physical resistances',
     ignoresTypeMatchups: 'Ignores type matchups',
     knowsPlayerMoves: "Knows the player's moves"
@@ -296,6 +297,7 @@ function getPotentialTeamsWithLeads (allowableTeams, trainer) {
   const combosWithFitness = allowableTeams.map(team => ({ team: team, fitness: getTeamFitness(team, trainer, fitnesses) }))
   const possibleOutcomes = new Map()
   const seedWeights = [27, 9, 9, 3, 9, 3, 3, 1]
+  const topTeamCount = trainer.ai.onlyUsesTopFourTeams ? 4 : 8
 
   for (let i = 0; i < 8; i++) {
     const prng = new OctalPrng(i)
@@ -309,7 +311,7 @@ function getPotentialTeamsWithLeads (allowableTeams, trainer) {
         combosWithFitnessClone = combosWithFitness.filter(fitnessedTeam => !fitnessedTeam.team.includes(secondBestPoke))
       }
     }
-    let potentialTeams = bestEightTeams(combosWithFitnessClone, prng)
+    let potentialTeams = topTeams(combosWithFitnessClone, topTeamCount, prng)
     if ([1, 2, 4, 8].includes(potentialTeams.length)) {
       potentialTeams = [potentialTeams[prng.randOctalDigit() % potentialTeams.length]]
     } else if (potentialTeams.length === 6) {
@@ -351,6 +353,7 @@ function getPotentialTeamsWithLeads (allowableTeams, trainer) {
 
 function getPotentialTeamsWithLeadsRandomFitness (allowableTeams, trainer) {
   const possibleOutcomes = new Map()
+  const topTeamCount = trainer.ai.onlyUsesTopFourTeams ? 4 : 8
 
   for (let i = 0; i < 16384; i++) {
     const prng = new ShortPrng(i)
@@ -369,7 +372,7 @@ function getPotentialTeamsWithLeadsRandomFitness (allowableTeams, trainer) {
         combosWithFitnessClone = combosWithFitness.filter(fitnessedTeam => !fitnessedTeam.team.includes(secondBestPoke))
       }
     }
-    let potentialTeams = bestEightTeams(combosWithFitnessClone, prng)
+    let potentialTeams = topTeams(combosWithFitnessClone, topTeamCount, prng)
     if ([1, 2, 4, 8].includes(potentialTeams.length)) {
       potentialTeams = [potentialTeams[prng.randOctalDigit() % potentialTeams.length]]
     } else if (potentialTeams.length === 6) {
@@ -441,7 +444,7 @@ function bestTwoPokes () {
   return [bestPoke, secondBestPoke]
 }
 
-function bestEightTeams (teams, prng) {
+function topTeams (teams, count, prng) {
   if (isNaN(teams[0].fitness)) {
     return teams.map(fitnessedTeam => fitnessedTeam.team)
   }
@@ -458,11 +461,11 @@ function bestEightTeams (teams, prng) {
         break
       }
     }
-    if (insertPosition === -1 && bestTeams.length < 8) {
+    if (insertPosition === -1 && bestTeams.length < count) {
       insertPosition = bestTeams.length
     }
     if (insertPosition !== -1) {
-      if (bestTeams.length < 8) {
+      if (bestTeams.length < count) {
         bestTeams.push(null)
       }
       bestTeams.copyWithin(insertPosition + 1, insertPosition)
