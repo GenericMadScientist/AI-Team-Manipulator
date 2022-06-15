@@ -32528,11 +32528,183 @@ const cupData = {
           friendship: 128
         }
       ]
+    },
+    {
+      name: 'Champion Lance (JPN)',
+      ai: {
+        ignoresTypeMatchups: false,
+        randomFitness: false,
+        usesRandomLead: false,
+        penaliseBestFitnessPokeLead: false,
+        onlyUsesTopFourTeams: false,
+        mustUseFirstPoke: true,
+        doesNotReorderTeam: false,
+        doesNotPenaliseCommonResistances: false,
+        mustNotUseBothBestPokes: false,
+        mustUseLastPoke: false,
+        mustUseFromAllColumns: false,
+        knowsPlayerMoves: false,
+        weightToDamageByAi: 190,
+        weightToDamageByPlayer: 100,
+        weightToSecondaryEffects: 100,
+        desireToInflictSleep: 128,
+        desireToInflictPoison: 128,
+        desireToInflictBurn: 128,
+        desireToInflictFreeze: 128,
+        desireToInflictPara: 128,
+        desireToInflictFlinch: 128,
+        desireToInflictConfusion: 128,
+        desireToInflictInfatuation: 128,
+        desireToRaiseStats: [
+          128,
+          128,
+          128,
+          128,
+          128,
+          128,
+          128
+        ],
+        desireForLightScreen: 128,
+        desireForMist: 128,
+        desireForFocusEnergy: 128,
+        desireForReflect: 128,
+        desireForDisable: 128,
+        desireForBatonPass: 128,
+        desireToLowerStatTenPercentChance: 128
+      },
+      team: [
+        {
+          level: 50,
+          species: 149,
+          gender: '♂',
+          item: 140,
+          moves: [
+            225,
+            58,
+            85,
+            63
+          ],
+          stats: {
+            hp: 187,
+            attack: 174,
+            defense: 136,
+            spclAtk: 141,
+            spclDef: 141,
+            speed: 120
+          },
+          friendship: 255
+        },
+        {
+          level: 50,
+          species: 142,
+          gender: '♂',
+          item: 82,
+          moves: [
+            246,
+            17,
+            89,
+            63
+          ],
+          stats: {
+            hp: 176,
+            attack: 145,
+            defense: 106,
+            spclAtk: 101,
+            spclDef: 116,
+            speed: 170
+          },
+          friendship: 128
+        },
+        {
+          level: 50,
+          species: 160,
+          gender: '♂',
+          item: 73,
+          moves: [
+            57,
+            89,
+            59,
+            63
+          ],
+          stats: {
+            hp: 181,
+            attack: 145,
+            defense: 141,
+            spclAtk: 120,
+            spclDef: 124,
+            speed: 118
+          },
+          friendship: 128
+        },
+        {
+          level: 50,
+          species: 115,
+          gender: '♀',
+          item: 3,
+          moves: [
+            66,
+            89,
+            157,
+            63
+          ],
+          stats: {
+            hp: 201,
+            attack: 135,
+            defense: 121,
+            spclAtk: 81,
+            spclDef: 121,
+            speed: 130
+          },
+          friendship: 128
+        },
+        {
+          level: 50,
+          species: 59,
+          gender: '♂',
+          item: 109,
+          moves: [
+            53,
+            245,
+            242,
+            63
+          ],
+          stats: {
+            hp: 186,
+            attack: 150,
+            defense: 121,
+            spclAtk: 141,
+            spclDef: 121,
+            speed: 135
+          },
+          friendship: 128
+        },
+        {
+          level: 50,
+          species: 248,
+          gender: '♀',
+          item: 73,
+          moves: [
+            242,
+            157,
+            89,
+            63
+          ],
+          stats: {
+            hp: 196,
+            attack: 172,
+            defense: 151,
+            spclAtk: 136,
+            spclDef: 141,
+            speed: 101
+          },
+          friendship: 128
+        }
+      ]
     }
   ],
   'kanto-r2': [
     {
-      name: 'Gym Leader Pewter',
+      name: 'Gym Leader Brock',
       ai: {
         ignoresTypeMatchups: false,
         randomFitness: false,
@@ -35460,6 +35632,178 @@ const cupData = {
       ]
     },
     {
+      name: 'Pokémaniac Joseph (JPN)',
+      ai: {
+        ignoresTypeMatchups: false,
+        randomFitness: false,
+        usesRandomLead: false,
+        penaliseBestFitnessPokeLead: true,
+        onlyUsesTopFourTeams: true,
+        mustUseFirstPoke: true,
+        doesNotReorderTeam: false,
+        doesNotPenaliseCommonResistances: true,
+        mustNotUseBothBestPokes: false,
+        mustUseLastPoke: true,
+        mustUseFromAllColumns: false,
+        knowsPlayerMoves: true,
+        weightToDamageByAi: 148,
+        weightToDamageByPlayer: 128,
+        weightToSecondaryEffects: 128,
+        desireToInflictSleep: 128,
+        desireToInflictPoison: 128,
+        desireToInflictBurn: 128,
+        desireToInflictFreeze: 128,
+        desireToInflictPara: 128,
+        desireToInflictFlinch: 128,
+        desireToInflictConfusion: 128,
+        desireToInflictInfatuation: 128,
+        desireToRaiseStats: [
+          128,
+          128,
+          128,
+          128,
+          128,
+          128,
+          128
+        ],
+        desireForLightScreen: 128,
+        desireForMist: 128,
+        desireForFocusEnergy: 128,
+        desireForReflect: 128,
+        desireForDisable: 128,
+        desireForBatonPass: 128,
+        desireToLowerStatTenPercentChance: 128
+      },
+      team: [
+        {
+          level: 50,
+          species: 115,
+          gender: '♀',
+          item: 104,
+          moves: [
+            23,
+            44,
+            214,
+            0
+          ],
+          stats: {
+            hp: 165,
+            attack: 100,
+            defense: 87,
+            spclAtk: 54,
+            spclDef: 94,
+            speed: 95
+          },
+          friendship: 127
+        },
+        {
+          level: 50,
+          species: 209,
+          gender: '♀',
+          item: 104,
+          moves: [
+            29,
+            7,
+            214,
+            0
+          ],
+          stats: {
+            hp: 156,
+            attack: 103,
+            defense: 76,
+            spclAtk: 90,
+            spclDef: 90,
+            speed: 56
+          },
+          friendship: 127
+        },
+        {
+          level: 50,
+          species: 217,
+          gender: '♀',
+          item: 0,
+          moves: [
+            154,
+            7,
+            214,
+            0
+          ],
+          stats: {
+            hp: 150,
+            attack: 135,
+            defense: 91,
+            spclAtk: 96,
+            spclDef: 96,
+            speed: 66
+          },
+          friendship: 127
+        },
+        {
+          level: 50,
+          species: 241,
+          gender: '♀',
+          item: 170,
+          moves: [
+            23,
+            7,
+            214,
+            0
+          ],
+          stats: {
+            hp: 155,
+            attack: 96,
+            defense: 136,
+            spclAtk: 68,
+            spclDef: 98,
+            speed: 105
+          },
+          friendship: 127
+        },
+        {
+          level: 50,
+          species: 36,
+          gender: '♀',
+          item: 170,
+          moves: [
+            70,
+            7,
+            214,
+            0
+          ],
+          stats: {
+            hp: 155,
+            attack: 86,
+            defense: 92,
+            spclAtk: 99,
+            spclDef: 104,
+            speed: 71
+          },
+          friendship: 127
+        },
+        {
+          level: 50,
+          species: 234,
+          gender: '♀',
+          item: 104,
+          moves: [
+            23,
+            168,
+            214,
+            0
+          ],
+          stats: {
+            hp: 156,
+            attack: 101,
+            defense: 93,
+            spclAtk: 115,
+            spclDef: 95,
+            speed: 97
+          },
+          friendship: 127
+        }
+      ]
+    },
+    {
       name: 'Kimono Girl Naomi',
       ai: {
         ignoresTypeMatchups: false,
@@ -35617,6 +35961,178 @@ const cupData = {
             218,
             138,
             0,
+            0
+          ],
+          stats: {
+            hp: 158,
+            attack: 77,
+            defense: 71,
+            spclAtk: 181,
+            spclDef: 126,
+            speed: 153
+          },
+          friendship: 105
+        }
+      ]
+    },
+    {
+      name: 'Kimono Girl Naomi (JPN)',
+      ai: {
+        ignoresTypeMatchups: false,
+        randomFitness: false,
+        usesRandomLead: false,
+        penaliseBestFitnessPokeLead: false,
+        onlyUsesTopFourTeams: true,
+        mustUseFirstPoke: true,
+        doesNotReorderTeam: true,
+        doesNotPenaliseCommonResistances: true,
+        mustNotUseBothBestPokes: false,
+        mustUseLastPoke: true,
+        mustUseFromAllColumns: false,
+        knowsPlayerMoves: true,
+        weightToDamageByAi: 108,
+        weightToDamageByPlayer: 128,
+        weightToSecondaryEffects: 148,
+        desireToInflictSleep: 128,
+        desireToInflictPoison: 220,
+        desireToInflictBurn: 128,
+        desireToInflictFreeze: 128,
+        desireToInflictPara: 128,
+        desireToInflictFlinch: 128,
+        desireToInflictConfusion: 128,
+        desireToInflictInfatuation: 128,
+        desireToRaiseStats: [
+          128,
+          128,
+          128,
+          128,
+          128,
+          128,
+          128
+        ],
+        desireForLightScreen: 128,
+        desireForMist: 128,
+        desireForFocusEnergy: 128,
+        desireForReflect: 128,
+        desireForDisable: 128,
+        desireForBatonPass: 128,
+        desireToLowerStatTenPercentChance: 128
+      },
+      team: [
+        {
+          level: 55,
+          species: 198,
+          gender: '♂',
+          item: 0,
+          moves: [
+            185,
+            0,
+            0,
+            0
+          ],
+          stats: {
+            hp: 150,
+            attack: 115,
+            defense: 93,
+            spclAtk: 100,
+            spclDef: 52,
+            speed: 113
+          },
+          friendship: 92
+        },
+        {
+          level: 50,
+          species: 93,
+          gender: '♂',
+          item: 0,
+          moves: [
+            92,
+            138,
+            218,
+            0
+          ],
+          stats: {
+            hp: 151,
+            attack: 76,
+            defense: 70,
+            spclAtk: 166,
+            spclDef: 106,
+            speed: 138
+          },
+          friendship: 105
+        },
+        {
+          level: 50,
+          species: 200,
+          gender: '♀',
+          item: 0,
+          moves: [
+            92,
+            138,
+            218,
+            0
+          ],
+          stats: {
+            hp: 120,
+            attack: 71,
+            defense: 65,
+            spclAtk: 135,
+            spclDef: 135,
+            speed: 127
+          },
+          friendship: 120
+        },
+        {
+          level: 50,
+          species: 92,
+          gender: '♂',
+          item: 0,
+          moves: [
+            92,
+            138,
+            218,
+            0
+          ],
+          stats: {
+            hp: 136,
+            attack: 76,
+            defense: 70,
+            spclAtk: 151,
+            spclDef: 86,
+            speed: 131
+          },
+          friendship: 105
+        },
+        {
+          level: 50,
+          species: 219,
+          gender: '♀',
+          item: 0,
+          moves: [
+            92,
+            218,
+            0,
+            0
+          ],
+          stats: {
+            hp: 125,
+            attack: 56,
+            defense: 170,
+            spclAtk: 90,
+            spclDef: 90,
+            speed: 36
+          },
+          friendship: 75
+        },
+        {
+          level: 50,
+          species: 94,
+          gender: '♀',
+          item: 0,
+          moves: [
+            92,
+            138,
+            218,
             0
           ],
           stats: {
